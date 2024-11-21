@@ -1,0 +1,7 @@
+name = "GridMaps"
+uuid = "889a5e0f-cea4-48d1-aea6-4a3fe9168d86"
+authors = ["Nicholas Harrison"]
+version = "0.1.0"
+
+[compat]
+julia = "1.10"

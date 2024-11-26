@@ -15,7 +15,7 @@ using JET
     @testset "Basic functionality" begin
         n = 3
         m = reshape(1:n^2, n, n)
-        map = Map(m, (lower=[1, 1], upper=2 .* [n, n] .- 1))
+        map = GridMap(m, (lower=[1, 1], upper=2 .* [n, n] .- 1))
 
         @test all(res(map) .== [2.0, 2.0])
 

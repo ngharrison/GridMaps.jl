@@ -1,10 +1,3 @@
-"""
-This module contains types for holding and handling real and synthetic data.
-Mainly used by, but foundational for the other parts too.
-
-Main public types and functions:
-$(EXPORTS)
-"""
 module GridMaps
 
 using DocStringExtensions: TYPEDSIGNATURES, TYPEDFIELDS, TYPEDEF, EXPORTS
@@ -24,7 +17,7 @@ const Bounds = @NamedTuple begin
 end
 
 """
-A general type for holding multidimensional data (usually a matrix) along with
+A general type for holding multi-dimensional data (usually a matrix) along with
 associated dimension bounds. It's main purpose is to handle the conversion
 between world coordinates and grid indices internally. Converting between the
 two representations treats rows as the first variable (x-axis), columns as
@@ -35,15 +28,31 @@ will return the value of the grid cell that a given point falls within. In other
 words, the map value is constant within each cell. One can also think of this as
 a nearest-neighbor approximation.
 
-Each cell index is treated as the center of its cell. Thus the map's lower bound
-is at the center of the first cell and the map's upper bound is at the center of
-the last cell.
+Each cell index is treated as the center of its cell. Thus the map's lower
+bounds are at the center of the first cell and the map's upper bounds are at the
+center of the last cell.
 
 Also made to function directly like a built-in N-dimensional array by sub-typing
 and implementing the base methods.
 
 Fields:
 $(TYPEDFIELDS)
+
+A GridMap is constructed by passing the multi-dimensional array of data and the
+dimension bounds. If no bounds are passed, they default to zeros for lower and
+ones for upper.
+
+# Examples
+```julia
+data = reshape(1:25, 5, 5)
+bounds = (
+    lower = [0.0, 0.0],
+    upper = [1.0, 1.0]
+)
+gmap = GridMap(data, bounds)
+gmap2 = GridMap(data) # bounds will be zero to one
+```
+
 """
 struct GridMap{T1<:Any, N<:Any, A<:AbstractArray{T1, N}, T2<:Real} <: AbstractArray{T1, N}
     "N-dimensional array of data"
@@ -67,18 +76,14 @@ function GridMap(data::AbstractArray{<:Any})
 end
 
 """
-Method accepts a single vector (the location), returns a scalar (the value at
+A variable of GridMap type can itself be called to retrieve map values. This
+method accepts a single vector (the location), returns a scalar (the value at
 that point).
 
 # Examples
 ```julia
 data = reshape(1:25, 5, 5)
-bounds = (
-    lower = [0.0, 0.0],
-    upper = [1.0, 1.0]
-)
-m = GridMap(data, bounds)
-m2 = GridMap(data) # bounds will be zero to one
+gmap = GridMap(data)
 
 x = [.2, .75]
 val = m(x) # returns the value at a single 2D point
@@ -108,14 +113,8 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Generates a random point in the map. Returns the location and its value.
-
-# Examples
-```julia
-data = reshape(1:25, 5, 5)
-gmap = GridMap(data)
-rand(gmap)
-```
+Generates a random point within the map bounds. Returns a tuple of the location
+and its value.
 """
 function Base.rand(gmap::GridMap)
     x = randomPoint(gmap)
@@ -160,7 +159,8 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Returns the resolution for each dimension of the given GridMap as a vector.
+Returns the resolution (distance between cells) for each dimension of the given
+GridMap as a vector.
 """
 function res(gmap)
     return (gmap.bounds.upper .- gmap.bounds.lower) ./ (size(gmap) .- 1)
@@ -169,8 +169,8 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Takes in a point in world-coordinates and a GridMap and returns a CartesianIndex for
-the underlying array.
+Takes in a point in world-coordinates (a vector) and a GridMap and returns a
+CartesianIndex for the underlying array.
 """
 function pointToCell(x, gmap)
     dif = (x .- gmap.bounds.lower)
@@ -180,7 +180,8 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Takes in a CartesianIndex and a GridMap and returns a point in world-coordinates.
+Takes in a CartesianIndex and a GridMap and returns a point in world-coordinates
+(a vector).
 """
 function cellToPoint(ci, gmap)
     return (collect(Tuple(ci)) .- 1) .* res(gmap) .+ gmap.bounds.lower
@@ -190,6 +191,15 @@ end
 $(TYPEDSIGNATURES)
 
 Method to generate the x, y, etc. axes and points of a GridMap. Useful for plotting.
+
+# Examples
+```julia
+data = reshape(1:25, 5, 5)
+gmap = GridMap(data)
+generateAxes(gmap)
+# output: ([0.0:0.25:1.0, 0.0:0.25:1.0], [[0.0, 0.0] [0.0, 0.25] … [1.0, 0.75] [1.0
+, 1.0]])
+```
 """
 generateAxes(gmap) = generateAxes(gmap.bounds, size(gmap))
 

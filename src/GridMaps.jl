@@ -86,8 +86,8 @@ data = reshape(1:25, 5, 5)
 gmap = GridMap(data)
 
 x = [.2, .75]
-val = m(x) # returns the value at a single 2D point
-val2 = m[1,4] # can also use as if it's just the underlying matrix
+val = gmap(x) # returns the value at a single 2D point
+val2 = gmap[1,4] # can also use as if it's just the underlying matrix
 ```
 """
 function (gmap::GridMap)(x)
@@ -96,10 +96,10 @@ function (gmap::GridMap)(x)
 end
 
 # make a map behave like an array
-Base.size(m::GridMap) = size(m.data)
+Base.size(gmap::GridMap) = size(gmap.data)
 Base.IndexStyle(::Type{<:GridMap}) = IndexLinear()
-Base.getindex(m::GridMap, i::Integer) = m.data[i]
-Base.setindex!(m::GridMap, v, i::Integer) = (m.data[i] = v)
+Base.getindex(gmap::GridMap, i::Integer) = gmap.data[i]
+Base.setindex!(gmap::GridMap, v, i::Integer) = (gmap.data[i] = v)
 
 # change display
 function Base.show(io::IO, gmap::GridMap{T1}) where T1
@@ -191,14 +191,6 @@ end
 $(TYPEDSIGNATURES)
 
 Method to generate the x, y, etc. axes and points of a GridMap. Useful for plotting.
-
-# Examples
-```julia
-data = reshape(1:25, 5, 5)
-gmap = GridMap(data)
-generateAxes(gmap)
-# output: ([0.0:0.25:1.0, 0.0:0.25:1.0], [[0.0, 0.0] [0.0, 0.25] … [1.0, 0.75] [1.0
-, 1.0]])
 ```
 """
 generateAxes(gmap) = generateAxes(gmap.bounds, size(gmap))

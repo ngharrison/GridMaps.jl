@@ -10,12 +10,9 @@ This package provides the single, simple GridMap type and some associated method
 
 Following is a quick example of the main functionality of this package.
 
-```@setup
-using Random
-Random.seed!(0)
-```
-
 ```@repl
+using Random; Random.seed!(0); # for repeatability
+
 using GridMaps
 
 data = reshape(1:25, 5, 5);
